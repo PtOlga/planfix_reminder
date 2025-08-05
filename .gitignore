@@ -82,4 +82,4 @@ logs/
 # Application specific
 *.db
 *.sqlite
-*.sqlite3
+*.sqlite3"config.ini" 

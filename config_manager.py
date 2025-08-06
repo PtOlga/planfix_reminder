@@ -1,316 +1,289 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Модуль управления конфигурацией Planfix Reminder
-Отвечает за загрузку, валидацию и предоставление настроек
+Модуль управления конфигурацией
+Загружает и валидирует настройки из config.ini
 """
 
-from pathlib import Path
+import os
 import configparser
 from typing import Dict, Any, Optional
-import os
+
+# Импортируем систему файлового логирования
+try:
+    from file_logger import (
+        setup_logging, debug, info, success, warning, error, critical,
+        config_event, log_config_summary
+    )
+except ImportError:
+    # Если модуль логирования не найден, используем простые print
+    def setup_logging(debug_mode=False, console_debug=False): pass
+    def debug(message, category="DEBUG"): pass
+    def info(message, category="INFO"): 
+        if category in ["INFO", "SUCCESS"]: print(f"ℹ️ {message}")
+    def success(message, category="SUCCESS"): print(f"✅ {message}")
+    def warning(message, category="WARNING"): print(f"⚠️ {message}")
+    def error(message, category="ERROR", exc_info=False): print(f"❌ {message}")
+    def critical(message, category="CRITICAL", exc_info=False): print(f"💥 {message}")
+    def config_event(message): pass
+    def log_config_summary(config_dict): pass
 
 class ConfigManager:
-    """Управление конфигурацией приложения"""
+    """Менеджер конфигурации приложения"""
     
-    def __init__(self):
-        self.config_data = {
-            'check_interval': 300,
-            'max_windows_per_category': 5,
-            'max_total_windows': 10,
-            'notifications': {
-                'current': True,
-                'urgent': True,
-                'overdue': True
+    def __init__(self, config_file: str = "config.ini"):
+        self.config_file = config_file
+        self.config = configparser.ConfigParser()
+        self.is_loaded = False
+        
+        # Настройки по умолчанию
+        self.defaults = {
+            'Planfix': {
+                'user_id': '1',
+                'filter_id': ''
             },
-            'roles': {
-                'include_assignee': True,
-                'include_assigner': True,
-                'include_auditor': True
+            'Settings': {
+                'check_interval': '300',
+                'notify_current': 'true',
+                'notify_urgent': 'true', 
+                'notify_overdue': 'true',
+                'max_windows_per_category': '5',
+                'max_total_windows': '10',
+                'debug_mode': 'false'
             },
-            'planfix': {
-                'api_token': '',
-                'account_url': '',
-                'filter_id': None,
-                'user_id': '1'
+            'Roles': {
+                'include_assignee': 'true',
+                'include_assigner': 'true',
+                'include_auditor': 'true'
             }
         }
-        self._config_loaded = False
-        
-    def load_config(self, show_diagnostics: bool = True) -> bool:
+    
+    def load_config(self, show_diagnostics: bool = False) -> bool:
         """
-        Загружает конфигурацию из файла config.ini
+        Загружает конфигурацию из файла
         
         Args:
-            show_diagnostics: Показывать диагностику процесса загрузки
+            show_diagnostics: Показывать подробную диагностику в консоли
             
         Returns:
-            bool: True если конфиг загружен успешно
+            bool: True если конфигурация загружена успешно
         """
         if show_diagnostics:
-            print("=== ДИАГНОСТИКА ПОИСКА КОНФИГА ===")
+            print("📋 Загрузка конфигурации...")
         
-        config_file_path = self._find_config_file(show_diagnostics)
-        if not config_file_path:
+        # Проверяем существование файла
+        if not os.path.exists(self.config_file):
+            error(f"Файл конфигурации не найден: {self.config_file}")
             return False
         
-        success = self._parse_config_file(config_file_path, show_diagnostics)
-        if success:
-            self._config_loaded = True
+        try:
+            self.config.read(self.config_file, encoding='utf-8')
             
-        return success
+            # Сначала загружаем debug_mode чтобы настроить логирование
+            debug_mode = self._get_bool_setting('Settings', 'debug_mode', False)
+            
+            # Настраиваем систему логирования
+            setup_logging(debug_mode=debug_mode, console_debug=show_diagnostics)
+            
+            config_event(f"Режим отладки: {'включен' if debug_mode else 'выключен'}")
+            config_event(f"Консольная диагностика: {'включена' if show_diagnostics else 'выключена'}")
+            
+            # Применяем значения по умолчанию
+            self._apply_defaults()
+            
+            # Валидируем конфигурацию
+            if not self._validate_config():
+                return False
+            
+            self.is_loaded = True
+            
+            # Логируем сводку конфигурации в файл
+            if debug_mode:
+                config_summary = {
+                    'Planfix': dict(self.config['Planfix']),
+                    'Settings': dict(self.config['Settings']),
+                    'Roles': dict(self.config['Roles'])
+                }
+                log_config_summary(config_summary)
+            
+            if show_diagnostics:
+                self._show_config_summary_console()
+            
+            success("Конфигурация успешно загружена")
+            return True
+            
+        except Exception as e:
+            critical(f"Ошибка загрузки конфигурации: {e}", exc_info=True)
+            return False
     
-    def _find_config_file(self, show_diagnostics: bool) -> Optional[Path]:
-        """Ищет файл config.ini в разных местах"""
-        script_dir = Path(__file__).parent.absolute()
-        current_dir = Path.cwd()
+    def _apply_defaults(self):
+        """Применяет значения по умолчанию для отсутствующих параметров"""
+        for section_name, section_defaults in self.defaults.items():
+            if not self.config.has_section(section_name):
+                self.config.add_section(section_name)
+                config_event(f"Создана секция [{section_name}]")
+            
+            for key, default_value in section_defaults.items():
+                if not self.config.has_option(section_name, key):
+                    self.config.set(section_name, key, default_value)
+                    config_event(f"Установлено значение по умолчанию: {section_name}.{key} = {default_value}")
+    
+    def _validate_config(self) -> bool:
+        """Валидирует обязательные параметры конфигурации"""
+        config_event("Начало валидации конфигурации")
         
-        if show_diagnostics:
-            print(f"Текущая рабочая директория: {current_dir}")
-            print(f"Директория скрипта: {script_dir}")
-            print()
-        
-        # Возможные пути к конфигу (в порядке приоритета)
-        config_paths = [
-            current_dir / 'config.ini',
-            script_dir / 'config.ini',
-            Path('config.ini'),
+        # Проверяем обязательные параметры
+        required_settings = [
+            ('Planfix', 'api_token', "API токен обязателен"),
+            ('Planfix', 'account_url', "URL аккаунта обязателен")
         ]
         
-        # Ищем конфиг в разных местах
-        for i, path in enumerate(config_paths, 1):
-            if show_diagnostics:
-                print(f"🔍 Путь {i}: {path}")
-                print(f"   Абсолютный: {path.absolute()}")
-                print(f"   Существует: {path.exists()}")
-            
-            if path.exists():
-                try:
-                    size = path.stat().st_size
-                    if show_diagnostics:
-                        print(f"   ✅ Размер: {size} байт")
-                    return path
-                except Exception as e:
-                    if show_diagnostics:
-                        print(f"   ❌ Ошибка доступа: {e}")
-            else:
-                if show_diagnostics:
-                    print(f"   ❌ Файл не найден")
-            
-            if show_diagnostics:
-                print()
+        for section, key, error_msg in required_settings:
+            value = self.config.get(section, key, fallback='').strip()
+            if not value:
+                error(f"Валидация не пройдена: {error_msg}")
+                return False
+            config_event(f"Проверен обязательный параметр: {section}.{key}")
         
-        # Файл не найден - показываем диагностику
-        if show_diagnostics:
-            print("🚨 ФАЙЛ CONFIG.INI НЕ НАЙДЕН!")
-            self._show_directory_contents(current_dir, script_dir)
-        
-        return None
-    
-    def _parse_config_file(self, config_path: Path, show_diagnostics: bool) -> bool:
-        """Парсит файл конфигурации с разными кодировками"""
-        if show_diagnostics:
-            print(f"✅ НАЙДЕН CONFIG.INI: {config_path}")
-        
-        config = configparser.ConfigParser()
-        encodings_to_try = ['utf-8', 'cp1251', 'windows-1251', 'latin-1']
-        
-        for encoding in encodings_to_try:
-            try:
-                if show_diagnostics:
-                    print(f"Пробую кодировку: {encoding}")
-                
-                config.read(str(config_path), encoding=encoding)
-                
-                # Проверяем базовую структуру
-                if not self._validate_config_structure(config, show_diagnostics):
-                    continue
-                
-                # Проверяем обязательные поля
-                if not self._validate_required_fields(config, show_diagnostics):
-                    continue
-                
-                # Загружаем настройки
-                self._load_settings_from_config(config)
-                
-                if show_diagnostics:
-                    print(f"  ✅ Конфиг успешно загружен с кодировкой {encoding}")
-                    self._show_loaded_settings()
-                
-                return True
-                
-            except Exception as e:
-                if show_diagnostics:
-                    print(f"  ❌ Ошибка с кодировкой {encoding}: {e}")
-                continue
-        
-        if show_diagnostics:
-            print("❌ НЕ УДАЛОСЬ ЗАГРУЗИТЬ КОНФИГ!")
-        return False
-    
-    def _validate_config_structure(self, config: configparser.ConfigParser, show_diagnostics: bool) -> bool:
-        """Проверяет структуру конфига"""
-        sections = config.sections()
-        
-        if show_diagnostics:
-            print(f"  Найдены секции: {sections}")
-        
-        if 'Planfix' not in sections:
-            if show_diagnostics:
-                print(f"  ❌ Секция [Planfix] не найдена")
-            return False
-        
-        return True
-    
-    def _validate_required_fields(self, config: configparser.ConfigParser, show_diagnostics: bool) -> bool:
-        """Проверяет обязательные поля"""
-        api_token = config.get('Planfix', 'api_token', fallback='')
-        account_url = config.get('Planfix', 'account_url', fallback='')
-        
-        if show_diagnostics:
-            print(f"  API Token: {'***' + api_token[-4:] if len(api_token) > 4 else 'НЕ ЗАДАН'}")
-            print(f"  Account URL: {account_url}")
-        
-        # Проверяем API токен
-        if not api_token or api_token in ['ВАШ_API_ТОКЕН', 'YOUR_API_TOKEN', 'YOUR_API_TOKEN_HERE']:
-            if show_diagnostics:
-                print(f"  ❌ API токен не настроен")
-            return False
-        
-        # Проверяем URL
+        # Валидируем URL
+        account_url = self.config.get('Planfix', 'account_url', fallback='')
         if not account_url.endswith('/rest'):
-            if show_diagnostics:
-                print(f"  ❌ URL должен заканчиваться на /rest")
+            error("Валидация URL: URL аккаунта должен заканчиваться на '/rest'")
             return False
+        config_event(f"URL валиден: {account_url}")
         
+        # Валидируем числовые параметры
+        numeric_settings = [
+            ('Planfix', 'user_id'),
+            ('Settings', 'check_interval'),
+            ('Settings', 'max_windows_per_category'),
+            ('Settings', 'max_total_windows')
+        ]
+        
+        for section, key in numeric_settings:
+            try:
+                value = int(self.config.get(section, key, fallback='0'))
+                if value <= 0:
+                    error(f"Валидация числовых параметров: {section}.{key} должен быть положительным числом")
+                    return False
+                config_event(f"Числовой параметр валиден: {section}.{key} = {value}")
+            except ValueError:
+                error(f"Валидация числовых параметров: {section}.{key} должен быть числом")
+                return False
+        
+        config_event("Валидация конфигурации завершена успешно")
         return True
     
-    def _load_settings_from_config(self, config: configparser.ConfigParser):
-        """Загружает все настройки из ConfigParser"""
-        # Настройки Planfix
-        self.config_data['planfix']['api_token'] = config['Planfix']['api_token']
-        self.config_data['planfix']['account_url'] = config['Planfix']['account_url']
-        self.config_data['planfix']['filter_id'] = config.get('Planfix', 'filter_id', fallback=None)
-        self.config_data['planfix']['user_id'] = config.get('Planfix', 'user_id', fallback='1')
+    def _show_config_summary_console(self):
+        """Показывает сводку загруженной конфигурации в консоли"""
+        print("\n📋 Сводка конфигурации:")
+        print("=" * 50)
         
-        # Очищаем filter_id если он пустой
-        if self.config_data['planfix']['filter_id'] == '':
-            self.config_data['planfix']['filter_id'] = None
+        # Planfix настройки (скрываем токен)
+        api_token = self.config.get('Planfix', 'api_token', fallback='')
+        masked_token = f"{api_token[:8]}...{api_token[-4:]}" if len(api_token) > 12 else "***"
         
-        # Настройки приложения
-        if config.has_section('Settings'):
-            self.config_data['check_interval'] = int(config.get('Settings', 'check_interval', fallback=300))
-            self.config_data['max_windows_per_category'] = int(config.get('Settings', 'max_windows_per_category', fallback=5))
-            self.config_data['max_total_windows'] = int(config.get('Settings', 'max_total_windows', fallback=10))
-            
-            self.config_data['notifications']['current'] = config.getboolean('Settings', 'notify_current', fallback=True)
-            self.config_data['notifications']['urgent'] = config.getboolean('Settings', 'notify_urgent', fallback=True)
-            self.config_data['notifications']['overdue'] = config.getboolean('Settings', 'notify_overdue', fallback=True)
+        print(f"🌐 Planfix:")
+        print(f"   API Token: {masked_token}")
+        print(f"   Account URL: {self.config.get('Planfix', 'account_url', fallback='')}")
+        print(f"   User ID: {self.config.get('Planfix', 'user_id', fallback='')}")
+        print(f"   Filter ID: {self.config.get('Planfix', 'filter_id', fallback='НЕ ЗАДАН')}")
         
-        # Настройки ролей
-        if config.has_section('Roles'):
-            self.config_data['roles']['include_assignee'] = config.getboolean('Roles', 'include_assignee', fallback=True)
-            self.config_data['roles']['include_assigner'] = config.getboolean('Roles', 'include_assigner', fallback=True)
-            self.config_data['roles']['include_auditor'] = config.getboolean('Roles', 'include_auditor', fallback=True)
-    
-    def _show_loaded_settings(self):
-        """Показывает загруженные настройки"""
-        print("✅ Все настройки успешно загружены")
-        print(f"   Filter ID: {self.config_data['planfix']['filter_id'] or 'НЕ ИСПОЛЬЗУЕТСЯ'}")
-        print(f"   User ID: {self.config_data['planfix']['user_id']}")
-        print(f"   Интервал проверки: {self.config_data['check_interval']} сек")
-        print("=" * 35)
-    
-    def _show_directory_contents(self, current_dir: Path, script_dir: Path):
-        """Показывает содержимое директорий для диагностики"""
-        print(f"\n📂 Содержимое текущей директории ({current_dir}):")
-        try:
-            for item in sorted(current_dir.iterdir()):
-                if item.is_file():
-                    print(f"   📄 {item.name}")
-                else:
-                    print(f"   📁 {item.name}/")
-        except Exception as e:
-            print(f"   ❌ Ошибка чтения: {e}")
+        print(f"\n⚙️ Настройки:")
+        print(f"   Интервал проверки: {self.config.get('Settings', 'check_interval', fallback='')} сек")
+        print(f"   Макс. окон на категорию: {self.config.get('Settings', 'max_windows_per_category', fallback='')}")
+        print(f"   Макс. окон всего: {self.config.get('Settings', 'max_total_windows', fallback='')}")
+        print(f"   Режим отладки: {self.config.get('Settings', 'debug_mode', fallback='')}")
         
-        if current_dir != script_dir:
-            print(f"\n📂 Содержимое директории скрипта ({script_dir}):")
-            try:
-                for item in sorted(script_dir.iterdir()):
-                    if item.is_file():
-                        print(f"   📄 {item.name}")
-                    else:
-                        print(f"   📁 {item.name}/")
-            except Exception as e:
-                print(f"   ❌ Ошибка чтения: {e}")
-    
-    # ===== ПУБЛИЧНЫЕ МЕТОДЫ =====
-    
-    def is_loaded(self) -> bool:
-        """Проверяет загружена ли конфигурация"""
-        return self._config_loaded
-    
-    def get_config(self) -> Dict[str, Any]:
-        """Возвращает полную конфигурацию"""
-        if not self._config_loaded:
-            raise RuntimeError("Конфигурация не загружена. Вызовите load_config() сначала.")
-        return self.config_data.copy()
+        print(f"\n🔔 Уведомления:")
+        print(f"   Текущие: {self.config.get('Settings', 'notify_current', fallback='')}")
+        print(f"   Срочные: {self.config.get('Settings', 'notify_urgent', fallback='')}")
+        print(f"   Просроченные: {self.config.get('Settings', 'notify_overdue', fallback='')}")
+        
+        print("=" * 50)
     
     def get_planfix_config(self) -> Dict[str, Any]:
-        """Возвращает настройки Planfix API"""
-        if not self._config_loaded:
+        """Возвращает настройки Planfix"""
+        if not self.is_loaded:
+            error("Попытка получить настройки Planfix до загрузки конфигурации")
             raise RuntimeError("Конфигурация не загружена")
-        return self.config_data['planfix'].copy()
+        
+        config = {
+            'api_token': self.config.get('Planfix', 'api_token'),
+            'account_url': self.config.get('Planfix', 'account_url'),
+            'user_id': self.config.getint('Planfix', 'user_id'),
+            'filter_id': self.config.get('Planfix', 'filter_id') or None
+        }
+        
+        config_event("Получены настройки Planfix")
+        return config
     
     def get_app_settings(self) -> Dict[str, Any]:
         """Возвращает настройки приложения"""
-        if not self._config_loaded:
+        if not self.is_loaded:
+            error("Попытка получить настройки приложения до загрузки конфигурации")
             raise RuntimeError("Конфигурация не загружена")
-        return {
-            'check_interval': self.config_data['check_interval'],
-            'max_windows_per_category': self.config_data['max_windows_per_category'],
-            'max_total_windows': self.config_data['max_total_windows'],
-            'notifications': self.config_data['notifications'].copy(),
-            'roles': self.config_data['roles'].copy()
+        
+        settings = {
+            'check_interval': self.config.getint('Settings', 'check_interval'),
+            'max_windows_per_category': self.config.getint('Settings', 'max_windows_per_category'),
+            'max_total_windows': self.config.getint('Settings', 'max_total_windows'),
+            'debug_mode': self.config.getboolean('Settings', 'debug_mode'),
+            'notifications': {
+                'current': self.config.getboolean('Settings', 'notify_current'),
+                'urgent': self.config.getboolean('Settings', 'notify_urgent'),
+                'overdue': self.config.getboolean('Settings', 'notify_overdue')
+            }
         }
-    
-    def get_notification_settings(self) -> Dict[str, bool]:
-        """Возвращает настройки уведомлений"""
-        if not self._config_loaded:
-            raise RuntimeError("Конфигурация не загружена")
-        return self.config_data['notifications'].copy()
+        
+        config_event("Получены настройки приложения")
+        return settings
     
     def get_role_settings(self) -> Dict[str, bool]:
         """Возвращает настройки ролей"""
-        if not self._config_loaded:
+        if not self.is_loaded:
+            error("Попытка получить настройки ролей до загрузки конфигурации")
             raise RuntimeError("Конфигурация не загружена")
-        return self.config_data['roles'].copy()
-    
-    def create_sample_config(self, filepath: str = 'config.ini') -> bool:
-        """
-        Создает пример файла конфигурации
         
-        Args:
-            filepath: Путь к создаваемому файлу
-            
-        Returns:
-            bool: True если файл создан успешно
-        """
-        sample_config = """[Planfix]
-# Ваш API токен из настроек Planfix
-api_token = ВАШ_API_ТОКЕН_ЗДЕСЬ
+        roles = {
+            'include_assignee': self.config.getboolean('Roles', 'include_assignee'),
+            'include_assigner': self.config.getboolean('Roles', 'include_assigner'),
+            'include_auditor': self.config.getboolean('Roles', 'include_auditor')
+        }
+        
+        config_event("Получены настройки ролей")
+        return roles
+    
+    def _get_bool_setting(self, section: str, key: str, default: bool = False) -> bool:
+        """Безопасно получает boolean настройку"""
+        try:
+            value = self.config.getboolean(section, key)
+            debug(f"Получена boolean настройка: {section}.{key} = {value}")
+            return value
+        except Exception as e:
+            warning(f"Ошибка получения boolean настройки {section}.{key}, используется значение по умолчанию: {default}")
+            debug(f"Детали ошибки: {e}")
+            return default
+    
+    def create_sample_config(self) -> bool:
+        """Создает пример файла конфигурации"""
+        config_event("Создание примера конфигурации")
+        
+        sample_content = """[Planfix]
+# API токен Planfix (обязательно)
+api_token = YOUR_API_TOKEN_HERE
 
-# URL вашего аккаунта (обязательно с /rest на конце!)
-account_url = https://ваш-аккаунт.planfix.com/rest
+# URL вашего аккаунта Planfix с /rest на конце (обязательно) 
+account_url = https://your-account.planfix.com/rest
 
-# ID готового фильтра (если есть)
+# ID готового фильтра задач (опционально)
 filter_id = 
 
-# ID пользователя (если нет фильтра)
+# ID пользователя (по умолчанию 1)
 user_id = 1
 
 [Settings]
-# Интервал проверки в секундах (300 = 5 минут)
+# Интервал проверки задач в секундах (по умолчанию 300 = 5 минут)
 check_interval = 300
 
 # Включить уведомления для разных типов задач
@@ -318,64 +291,64 @@ notify_current = true
 notify_urgent = true
 notify_overdue = true
 
-# Лимиты окон уведомлений
+# Максимальное количество окон уведомлений
 max_windows_per_category = 5
 max_total_windows = 10
 
+# Режим отладки - если true, записывает подробные логи в файлы
+# Полезно для диагностики проблем
+debug_mode = false
+
 [Roles]
-# Показывать задачи где я исполнитель
+# Включать задачи где пользователь является исполнителем
 include_assignee = true
 
-# Показывать задачи где я постановщик
+# Включать задачи где пользователь является постановщиком
 include_assigner = true
 
-# Показывать задачи где я контролер/участник
+# Включать задачи где пользователь является контролером
 include_auditor = true
 """
         
         try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(sample_config)
-            print(f"✅ Создан пример config.ini: {filepath}")
-            print("📝 Отредактируйте файл и укажите ваши данные")
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                f.write(sample_content)
+            success(f"Создан пример конфигурации: {self.config_file}")
+            config_event(f"Записан файл примера конфигурации: {os.path.abspath(self.config_file)}")
             return True
         except Exception as e:
-            print(f"❌ Ошибка создания config.ini: {e}")
+            error(f"Не удалось создать пример конфигурации: {e}")
             return False
 
 # ===== ФУНКЦИИ ДЛЯ ТЕСТИРОВАНИЯ МОДУЛЯ =====
 
 def test_config_manager():
-    """Тестирует ConfigManager"""
-    print("🧪 Тестирование ConfigManager")
-    print("=" * 40)
+    """Тестирует загрузку конфигурации"""
+    print("🧪 Тестирование ConfigManager с файловым логированием")
+    print("=" * 60)
     
-    config_manager = ConfigManager()
+    manager = ConfigManager()
     
-    # Тест 1: Загрузка конфига
-    print("1. Тестирование загрузки конфига...")
-    success = config_manager.load_config(show_diagnostics=True)
+    # Тест 1: Загрузка несуществующего файла
+    print("\nТест 1: Загрузка несуществующего файла")
+    if not manager.load_config(show_diagnostics=True):
+        print("✓ Корректно обработан отсутствующий файл")
     
-    if success:
-        print("✅ Конфиг загружен успешно")
+    # Тест 2: Создание примера конфигурации
+    print("\nТест 2: Создание примера конфигурации")
+    if manager.create_sample_config():
+        print("✓ Пример конфигурации создан")
         
-        # Тест 2: Получение настроек
-        print("\n2. Тестирование получения настроек...")
-        try:
-            planfix_config = config_manager.get_planfix_config()
-            app_settings = config_manager.get_app_settings()
-            
-            print(f"✅ Planfix настройки: {planfix_config}")
-            print(f"✅ Настройки приложения: {app_settings}")
-            
-        except Exception as e:
-            print(f"❌ Ошибка получения настроек: {e}")
-    else:
-        print("❌ Конфиг не загружен")
-        
-        # Тест 3: Создание примера
-        print("\n3. Создание примера config.ini...")
-        config_manager.create_sample_config('config_sample.ini')
+        # Тест 3: Загрузка созданного примера
+        print("\nТест 3: Загрузка созданного примера (должна быть ошибка валидации)")
+        if manager.load_config(show_diagnostics=True):
+            print("✗ Пример конфигурации содержит заглушки, должна быть ошибка валидации")
+        else:
+            print("✓ Корректно отклонена конфигурация с заглушками")
+    
+    from file_logger import get_logs_directory
+    print(f"\n📁 Логи сохранены в: {get_logs_directory()}")
+    print("✅ Тестирование завершено - проверьте файлы логов!")
 
 if __name__ == "__main__":
     test_config_manager()

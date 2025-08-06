@@ -1,76 +1,80 @@
 # Planfix Reminder
 
-Система уведомлений для задач Planfix с модульной архитектурой и расширенными возможностями диагностики.
+A desktop notification system for Planfix tasks with modular architecture and advanced diagnostic capabilities.
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/badge/version-2.0-blue.svg)
+![Stars](https://img.shields.io/github/stars/PtOlga/planfix_reminder.svg)
+![Issues](https://img.shields.io/github/issues/PtOlga/planfix_reminder.svg)
 
-## ✨ Особенности
+## ✨ Features
 
-- 🏗️ **Модульная архитектура** - код разделен на логические компоненты
-- 🔔 **Toast уведомления** - красивые всплывающие окна с анимацией
-- 🎯 **Категоризация задач** - просроченные, срочные, обычные
-- ⏰ **Гибкие настройки** - интервалы, лимиты, типы уведомлений
-- 🎵 **Звуковые сигналы** - разные для разных типов задач
-- 💤 **Отложение уведомлений** - на 15 минут или 1 час
-- 🖱️ **Перетаскивание окон** - настраиваемое расположение
-- 📊 **Системный трей** - управление и статистика
-- 🔄 **Умное отслеживание** - не показывает одно уведомление дважды
-- 📝 **Продвинутое логирование** - детальные логи для диагностики
-- 🔧 **Встроенная диагностика** - автоматическая проверка системы
-- 📦 **Сборка в exe** - готовые инструменты для создания исполняемого файла
+- 🏗️ **Modular Architecture** - clean separation of concerns
+- 🔔 **Toast Notifications** - beautiful animated popup windows
+- 🎯 **Task Categorization** - overdue, urgent, and current tasks
+- ⏰ **Flexible Settings** - intervals, limits, notification types
+- 🎵 **Sound Alerts** - different sounds for different task types
+- 💤 **Snooze Functionality** - 15 minutes or 1 hour delays
+- 🖱️ **Draggable Windows** - customizable positioning
+- 📊 **System Tray** - management and statistics
+- 🔄 **Smart Tracking** - prevents duplicate notifications
+- 📝 **Advanced Logging** - detailed logs for diagnostics
+- 🔧 **Built-in Diagnostics** - automatic system health checks
+- 📦 **Executable Build** - ready-to-use tools for creating exe files
 
-## 📁 Структура проекта
+## 📁 Project Structure
 
 ```
 planfix_reminder/
-├── main.py                       # Главный файл приложения
-├── config_manager.py             # Управление конфигурацией
-├── planfix_api.py                # Работа с API Planfix
-├── task_tracker.py               # Отслеживание состояний задач
-├── ui_components.py              # Toast уведомления и системный трей
-├── file_logger.py                # Система логирования
-├── diagnostic_module.py          # Модуль диагностики системы
-├── config.ini                    # Конфигурация (не в git!)
-├── config.ini.example            # Пример конфигурации
-├── requirements.txt              # Зависимости Python
-├── build.bat                     # Batch файл для сборки
-├── BUILD_INSTRUCTIONS.md         # Инструкции по сборке
-├── DIAGNOSTIC_INTEGRATION.md     # Документация диагностики
-├── planfix_reminder_help.html    # Справка пользователя
-├── README.md                     # Документация
-└── tools/                        # Служебные инструменты
-    ├── build_exe.py              # Скрипт сборки exe
-    ├── planfix_reminder.spec     # Конфигурация PyInstaller
-    ├── debug_utils.py            # Утилиты отладки
-    └── test_diagnostic_integration.py # Тесты интеграции
+├── main.py                       # Main application entry point
+├── config_manager.py             # Configuration management
+├── planfix_api.py                # Planfix API integration
+├── task_tracker.py               # Task state tracking
+├── ui_components.py              # Toast notifications and system tray
+├── file_logger.py                # File logging system
+├── diagnostic_module.py          # System diagnostic module
+├── config.ini                    # Configuration file (not in git!)
+├── config.ini.example            # Configuration template
+├── requirements.txt              # Python dependencies
+├── build.bat                     # Build batch file
+├── md/                           # Documentation files
+│   ├── BUILD_INSTRUCTIONS.md     # Build instructions
+│   └── DIAGNOSTIC_INTEGRATION.md # Diagnostic documentation
+├── planfix_reminder_help.html    # User help file
+├── README.md                     # Documentation
+└── tools/                        # Development tools
+    ├── build_exe.py              # Executable build script
+    ├── planfix_reminder.spec     # PyInstaller configuration
+    ├── debug_utils.py            # Debug utilities
+    └── test_diagnostic_integration.py # Integration tests
 ```
 
-## 🚀 Установка и настройка
+## 🚀 Installation and Setup
 
-### Вариант 1: Готовый exe файл (рекомендуется)
+### Option 1: Pre-built Executable (Recommended)
 
-1. **Скачайте готовую сборку** или соберите самостоятельно (см. раздел "Сборка exe")
-2. **Распакуйте архив** в любую папку
-3. **Скопируйте** `config.ini.example` в `config.ini`
-4. **Отредактируйте** `config.ini` - укажите ваши данные API
-5. **Запустите** `PlanfixReminder.exe`
+1. **Download** the latest release or build yourself (see "Building exe" section)
+2. **Extract** the archive to any folder
+3. **Copy** `config.ini.example` to `config.ini`
+4. **Edit** `config.ini` with your Planfix API credentials
+5. **Run** `PlanfixReminder.exe`
 
-### Вариант 2: Запуск из исходного кода
+### Option 2: Run from Source Code
 
-#### 1. Клонирование репозитория
+#### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/PtOlga/planfix_reminder.git
 cd planfix_reminder
 ```
 
-#### 2. Установка зависимостей
+#### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 3. Настройка конфигурации
+#### 3. Configure Settings
 ```bash
 # Windows
 copy config.ini.example config.ini
@@ -78,41 +82,41 @@ copy config.ini.example config.ini
 # Linux/macOS
 cp config.ini.example config.ini
 
-# Редактируем config.ini
+# Edit config.ini
 notepad config.ini  # Windows
 nano config.ini     # Linux/macOS
 ```
 
-#### 4. Получение API токена
-1. Войдите в Planfix как администратор
-2. Перейдите в **Настройки → API**
-3. Создайте новый API ключ
-4. Скопируйте токен в `config.ini`
+#### 4. Get Planfix API Token
+1. Log in to Planfix as administrator
+2. Navigate to **Settings → API**
+3. Create a new API key
+4. Copy the token to `config.ini`
 
-#### 5. Запуск приложения
+#### 5. Run Application
 ```bash
 python main.py
 ```
 
-## ⚙️ Конфигурация
+## ⚙️ Configuration
 
-### Основные параметры
+### Main Parameters
 
-| Параметр | Описание | По умолчанию |
-|----------|----------|--------------|
-| `api_token` | API токен Planfix | - |
-| `account_url` | URL аккаунта (с `/rest`) | - |
-| `filter_id` | ID готового фильтра | - |
-| `user_id` | ID пользователя | 1 |
-| `check_interval` | Интервал проверки (сек) | 300 |
-| `max_total_windows` | Макс. окон всего | 10 |
-| `max_windows_per_category` | Макс. окон категории | 5 |
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `api_token` | Planfix API token | - |
+| `account_url` | Account URL (with `/rest`) | - |
+| `filter_id` | Pre-built filter ID | - |
+| `user_id` | User ID | 1 |
+| `check_interval` | Check interval (seconds) | 300 |
+| `max_total_windows` | Max total windows | 10 |
+| `max_windows_per_category` | Max windows per category | 5 |
 
-### Пример config.ini
+### Example config.ini
 ```ini
 [Planfix]
-api_token = ваш_api_токен_здесь
-account_url = https://ваш-аккаунт.planfix.com/rest
+api_token = your_api_token_here
+account_url = https://your-account.planfix.com/rest
 filter_id =
 user_id = 4
 
@@ -131,156 +135,156 @@ include_assigner = true
 include_auditor = true
 ```
 
-## 🎯 Использование
+## 🎯 Usage
 
-### Типы уведомлений
+### Notification Types
 
-- 🔴 **Просроченные задачи** - красные с критическим звуком
-- 🟡 **Срочные задачи** - оранжевые с предупреждающим звуком  
-- 📋 **Обычные задачи** - синие без звука
+- 🔴 **Overdue Tasks** - red with critical sound alerts
+- 🟡 **Urgent Tasks** - orange with warning sound alerts
+- 📋 **Current Tasks** - blue with no sound
 
-### Управление уведомлениями
+### Notification Controls
 
-- **Открыть** - открывает задачу в браузере
-- **15мин** - откладывает на 15 минут (для срочных/просроченных)
-- **1ч** - откладывает на 1 час
-- **Готово** - помечает как просмотренную (больше не показывать)
-- **✕** - закрывает (появится снова через интервал)
-- **📌** - закрепляет/открепляет окно
+- **Open** - opens task in browser
+- **15min** - snooze for 15 minutes (urgent/overdue only)
+- **1h** - snooze for 1 hour
+- **Done** - mark as viewed (won't show again)
+- **✕** - close (will reappear after interval)
+- **📌** - pin/unpin window
 
-### Системный трей
+### System Tray
 
-Правый клик по иконке в трее:
-- 📊 **Проверить сейчас** - принудительная проверка
-- ⏸️ **Пауза** - временно отключить уведомления (1 час / до завтра)
-- ▶️ **Возобновить** - включить уведомления после паузы
-- 🌐 **Открыть Planfix** - открыть в браузере
-- 📖 **Справка** - открыть справку пользователя
-- 🔧 **Диагностика** - запустить диагностику системы
-- ❌ **Выход** - закрыть приложение
+Right-click the tray icon:
+- 📊 **Check Now** - force immediate check
+- ⏸️ **Pause** - temporarily disable notifications (1 hour / until tomorrow)
+- ▶️ **Resume** - enable notifications after pause
+- 🌐 **Open Planfix** - open in browser
+- 📖 **Help** - open user guide
+- 🔧 **Diagnostics** - run system diagnostics
+- ❌ **Exit** - close application
 
-### Цвета иконки трея
-- 🔴 **Красный** - есть просроченные задачи
-- 🟠 **Оранжевый** - есть срочные задачи
-- 🟢 **Зеленый** - все в порядке
-- ⚫ **Серый** - приложение на паузе
+### Tray Icon Colors
+- 🔴 **Red** - overdue tasks present
+- 🟠 **Orange** - urgent tasks present
+- 🟢 **Green** - all good
+- ⚫ **Gray** - application paused
 
-## 🔧 Диагностика и отладка
+## 🔧 Diagnostics and Troubleshooting
 
-### Встроенная диагностика
-Запустите диагностику из меню трея (🔧 Диагностика) или командой:
+### Built-in Diagnostics
+Run diagnostics from tray menu (🔧 Diagnostics) or via command:
 ```bash
 python diagnostic_module.py
 ```
 
-Диагностика проверяет:
-- ✅ **Система** - ОС, архитектура, права доступа
-- ✅ **Безопасность** - антивирус, UAC, SmartScreen
-- ✅ **Уведомления** - настройки Windows
-- ✅ **Службы** - важные системные службы
-- ✅ **Сеть** - интернет, DNS, брандмауэр
-- ✅ **Файлы** - права доступа к папкам
-- ✅ **Дисплей** - разрешение, масштабирование
-- ✅ **Производительность** - CPU, память, процессы
+Diagnostics check:
+- ✅ **System** - OS, architecture, user permissions
+- ✅ **Security** - antivirus, UAC, SmartScreen
+- ✅ **Notifications** - Windows notification settings
+- ✅ **Services** - critical Windows services
+- ✅ **Network** - internet, DNS, firewall
+- ✅ **Files** - folder access permissions
+- ✅ **Display** - resolution, scaling settings
+- ✅ **Performance** - CPU, memory, conflicting processes
 
-### Логирование
-Включите режим отладки в `config.ini`:
+### Logging
+Enable debug mode in `config.ini`:
 ```ini
 [Settings]
 debug_mode = true
 ```
 
-Логи сохраняются в папку `logs/` с детальной информацией о работе приложения.
+Logs are saved to `logs/` folder with detailed application activity.
 
-### Тестирование модулей
-Каждый модуль можно тестировать отдельно:
+### Module Testing
+Each module can be tested independently:
 
 ```bash
-# Тест загрузки конфигурации
+# Test configuration loading
 python config_manager.py
 
-# Тест API и получения задач
+# Test API and task retrieval
 python planfix_api.py
 
-# Тест отслеживания задач
+# Test task tracking
 python task_tracker.py
 
-# Тест интерфейса
+# Test UI components
 python ui_components.py
 
-# Тест диагностики
-python tools\test_diagnostic_integration.py
+# Test diagnostics
+python tools/test_diagnostic_integration.py
 ```
 
-## � Сборка exe файла
+## 📦 Building Executable
 
-### Автоматическая сборка (рекомендуется)
+### Automatic Build (Recommended)
 ```bash
 # Windows
 build.bat
 
-# Или напрямую через Python
-python tools\build_exe.py
+# Or directly via Python
+python tools/build_exe.py
 ```
 
-### Ручная сборка
+### Manual Build
 ```bash
-# Установка PyInstaller
+# Install PyInstaller
 pip install pyinstaller
 
-# Сборка через spec файл
-pyinstaller --clean tools\planfix_reminder.spec
+# Build using spec file
+pyinstaller --clean tools/planfix_reminder.spec
 ```
 
-Подробные инструкции см. в [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)
+Detailed instructions available in [md/BUILD_INSTRUCTIONS.md](md/BUILD_INSTRUCTIONS.md)
 
-## �🛠️ Архитектура
+## 🛠️ Architecture
 
-### Основные модули
+### Core Modules
 
-- **`main.py`** - точка входа и главный класс приложения
-- **`ConfigManager`** - загрузка и валидация настроек
-- **`PlanfixAPI`** - работа с API, получение задач
-- **`TaskProcessor`** - категоризация и форматирование задач
-- **`TaskTracker`** - отслеживание состояний уведомлений
-- **`ToastManager`** - управление всплывающими уведомлениями
-- **`SystemTray`** - системный трей и меню
-- **`FileLogger`** - система логирования в файлы
-- **`DiagnosticModule`** - диагностика системы
+- **`main.py`** - application entry point and main class
+- **`ConfigManager`** - settings loading and validation
+- **`PlanfixAPI`** - API integration and task retrieval
+- **`TaskProcessor`** - task categorization and formatting
+- **`TaskTracker`** - notification state tracking
+- **`ToastManager`** - popup notification management
+- **`SystemTray`** - system tray and menu
+- **`FileLogger`** - file-based logging system
+- **`DiagnosticModule`** - system diagnostics
 
-### Служебные инструменты (папка `tools/`)
+### Development Tools (`tools/` folder)
 
-- **`build_exe.py`** - автоматическая сборка exe
-- **`planfix_reminder.spec`** - конфигурация PyInstaller
-- **`debug_utils.py`** - утилиты для отладки
-- **`test_diagnostic_integration.py`** - тесты интеграции
+- **`build_exe.py`** - automated executable building
+- **`planfix_reminder.spec`** - PyInstaller configuration
+- **`debug_utils.py`** - debugging utilities
+- **`test_diagnostic_integration.py`** - integration tests
 
-### Преимущества модульной архитектуры
+### Modular Architecture Benefits
 
-- ✅ **Читаемость** - каждый модуль отвечает за свою область
-- ✅ **Тестируемость** - модули можно тестировать независимо
-- ✅ **Переиспользование** - модули можно использовать в других проектах
-- ✅ **Расширяемость** - легко добавлять новый функционал
-- ✅ **Поддержка** - проще находить и исправлять ошибки
-- ✅ **Диагностика** - встроенные инструменты для решения проблем
+- ✅ **Readability** - each module handles specific functionality
+- ✅ **Testability** - modules can be tested independently
+- ✅ **Reusability** - modules can be used in other projects
+- ✅ **Extensibility** - easy to add new features
+- ✅ **Maintainability** - easier to locate and fix issues
+- ✅ **Diagnostics** - built-in tools for problem resolution
 
-## 📋 Системные требования
+## 📋 System Requirements
 
-### Для exe файла (рекомендуется)
-- **Windows 10/11** (основная поддержка)
-- **Windows 7/8.1** (ограниченная поддержка)
-- **4 ГБ RAM** (минимум 2 ГБ)
-- **50 МБ** свободного места на диске
-- **Интернет соединение** для работы с Planfix API
+### For Executable (Recommended)
+- **Windows 10/11** (primary support)
+- **Windows 7/8.1** (limited support)
+- **4 GB RAM** (minimum 2 GB)
+- **50 MB** free disk space
+- **Internet connection** for Planfix API access
 
-### Для запуска из исходного кода
-- **Python 3.8+** (рекомендуется 3.10+)
-- **pip** для установки зависимостей
-- Библиотеки из `requirements.txt`
+### For Source Code Execution
+- **Python 3.8+** (recommended 3.10+)
+- **pip** for dependency installation
+- Libraries from `requirements.txt`
 
 #### Windows
 ```bash
-# Python обычно включает tkinter
+# Python usually includes tkinter
 python --version
 pip install -r requirements.txt
 ```
@@ -298,112 +302,151 @@ pip3 install -r requirements.txt
 
 #### macOS
 ```bash
-# Через Homebrew
+# Via Homebrew
 brew install python-tk
 pip3 install -r requirements.txt
 ```
 
-## 🚨 Безопасность
+## 🚨 Security
 
-- ⚠️ **Никогда не коммитьте `config.ini` в git!**
-- 🔒 API токен должен храниться только локально
-- 📝 Используйте `config.ini.example` для шаблона
+- ⚠️ **Never commit `config.ini` to git!**
+- 🔒 API tokens should be stored locally only
+- 📝 Use `config.ini.example` as template
 
-## 🐛 Устранение неполадок
+## 🐛 Troubleshooting
 
-### 🔧 Первый шаг - диагностика
-**Всегда начинайте с диагностики!**
-1. Запустите диагностику из меню трея (🔧 Диагностика)
-2. Изучите HTML отчет с рекомендациями
-3. Отправьте отчет в техподдержку при необходимости
+### 🔧 First Step - Run Diagnostics
+**Always start with diagnostics!**
+1. Run diagnostics from tray menu (🔧 Diagnostics)
+2. Review the HTML report with recommendations
+3. Send report to support if needed
 
-### ❌ Не загружается конфиг
-- Проверьте что `config.ini` существует в папке с программой
-- Убедитесь что API токен правильный (без лишних пробелов)
-- URL должен заканчиваться на `/rest`
-- Проверьте кодировку файла (должна быть UTF-8)
+### ❌ Configuration Won't Load
+- Verify `config.ini` exists in application folder
+- Ensure API token is correct (no extra spaces)
+- URL must end with `/rest`
+- Check file encoding (should be UTF-8)
 
-### 🌐 Не подключается к API
-- Запустите диагностику - она проверит интернет и DNS
-- Проверьте правильность токена и URL в config.ini
-- Убедитесь что сервер Planfix доступен
-- Проверьте настройки прокси и брандмауэра
+### 🌐 Can't Connect to API
+- Run diagnostics - it checks internet and DNS
+- Verify token and URL correctness in config.ini
+- Ensure Planfix server is accessible
+- Check proxy and firewall settings
 
-### 🔔 Не показываются уведомления
-- Проверьте что у пользователя есть активные задачи
-- Убедитесь что задачи не закрыты/завершены
-- Проверьте настройки `notify_*` в конфиге
-- Диагностика покажет состояние служб уведомлений Windows
+### 🔔 No Notifications Appearing
+- Verify user has active tasks
+- Ensure tasks aren't closed/completed
+- Check `notify_*` settings in config
+- Diagnostics will show Windows notification service status
 
-### 🖥️ Проблемы с интерфейсом
-- Диагностика проверит настройки дисплея и масштабирования
-- Попробуйте запустить от имени администратора
-- Проверьте что не запущено несколько копий программы
+### 🖥️ Interface Issues
+- Diagnostics will check display and scaling settings
+- Try running as administrator
+- Verify no multiple application instances are running
 
-### 📝 Включите отладку для детального анализа
+### 📝 Enable Debug Mode for Detailed Analysis
 ```ini
 [Settings]
 debug_mode = true
 ```
-Логи сохраняются в папку `logs/` - отправьте их в техподдержку.
+Logs are saved to `logs/` folder - send them with support requests.
 
-## 📄 Лицензия
+## 📄 License
 
-MIT License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Участие в разработке
+### Usage and Attribution
 
-1. Форкните репозиторий
-2. Создайте ветку для функции
-3. Внесите изменения
-4. Создайте Pull Request
+When using this code, please include:
+- **Author:** PtOlga
+- **Project:** Planfix Reminder  
+- **Repository:** https://github.com/PtOlga/planfix_reminder
 
-## � Мониторинг и статистика
+**Example code attribution:**
+```python
+# Based on Planfix Reminder by PtOlga
+# https://github.com/PtOlga/planfix_reminder
+```
 
-### Информация в системном трее
-- **Общее количество задач**
-- **Количество просроченных задач**
-- **Время последней проверки**
-- **Статус приложения** (активно/на паузе)
+**For web projects:**
+```html
+<!-- Powered by Planfix Reminder - https://github.com/PtOlga/planfix_reminder -->
+```
 
-### Логирование
-Приложение ведет детальные логи:
-- **Startup** - события запуска и инициализации
-- **Config** - загрузка и изменение настроек
-- **API** - запросы к Planfix API
-- **UI** - события интерфейса и уведомлений
-- **Error** - ошибки и исключения
+## 🌟 If This Project Helped You
 
-## 🔄 Обновления
+- ⭐ **Star the repository** on GitHub
+- 🔗 **Share the link** with colleagues
+- 📝 **Create issues** with suggestions or bug reports
+- 🤝 **Contribute** improvements via Pull Requests
 
-### Проверка версии
-Текущая версия указана в заголовке приложения и логах.
+## 🤝 Contributing
 
-### Установка обновлений
-1. **Для exe версии** - скачайте новую версию и замените файл
-2. **Для исходного кода** - выполните `git pull` и перезапустите
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
-### История изменений
-- ✅ **v2.0** - Модульная архитектура, диагностика, улучшенное логирование
-- ✅ **v1.5** - Системный трей, управление паузой
-- ✅ **v1.0** - Базовая функциональность уведомлений
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Create a Pull Request
 
-## 📞 Поддержка
+## 📈 Roadmap
 
-### Самостоятельное решение проблем
-1. **Запустите диагностику** из меню трея (🔧 Диагностика)
-2. **Изучите HTML отчет** с рекомендациями
-3. **Проверьте раздел** "Устранение неполадок" в этом README
-4. **Включите debug_mode** и изучите логи
+- [ ] Support for other task management systems
+- [ ] Web-based configuration interface
+- [ ] Mobile push notifications
+- [ ] Telegram bot integration
+- [ ] Multi-language support
 
-### Обращение в техподдержку
-При обращении в техподдержку приложите:
-1. **HTML отчет диагностики**
-2. **Файлы логов** из папки `logs/`
-3. **Описание проблемы** и шагов для воспроизведения
-4. **Версию приложения** и операционной системы
+## 📊 Monitoring and Statistics
 
-### Контакты
-- 📧 **Email** - укажите ваш корпоративный email техподдержки
-- 💬 **Чат** - внутренний корпоративный мессенджер
-- 📋 **Issue Tracker** - система учета заявок
+### System Tray Information
+- **Total task count**
+- **Overdue task count**
+- **Last check time**
+- **Application status** (active/paused)
+
+### Logging Categories
+The application maintains detailed logs:
+- **Startup** - initialization and startup events
+- **Config** - configuration loading and changes
+- **API** - Planfix API requests and responses
+- **UI** - interface events and notifications
+- **Error** - errors and exceptions
+
+## 🔄 Updates
+
+### Version Check
+Current version is displayed in application title and logs.
+
+### Installing Updates
+1. **For exe version** - download new version and replace file
+2. **For source code** - run `git pull` and restart application
+
+### Release History
+- ✅ **v2.0** - Modular architecture, diagnostics, improved logging
+- ✅ **v1.5** - System tray, pause management
+- ✅ **v1.0** - Basic notification functionality
+
+## 📞 Support
+
+### Self-Service Problem Resolution
+1. **Run diagnostics** from tray menu (🔧 Diagnostics)
+2. **Review HTML report** with recommendations
+3. **Check troubleshooting section** in this README
+4. **Enable debug_mode** and examine logs
+
+### Contacting Support
+When creating support requests, please include:
+1. **Diagnostic HTML report**
+2. **Log files** from `logs/` folder
+3. **Problem description** and steps to reproduce
+4. **Application version** and operating system
+
+### Contact Information
+- 🐛 **Issues:** https://github.com/PtOlga/planfix_reminder/issues
+- 📧 **Email:** Available via GitHub profile
+- 💬 **Discussions:** Use GitHub Discussions for questions
+
+---
+
+**Made with ❤️ for the Planfix community**

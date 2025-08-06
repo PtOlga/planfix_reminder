@@ -194,7 +194,7 @@ Enable debug mode in `config.ini`:
 debug_mode = true
 ```
 
-Logs are saved to `logs/` folder with detailed application activity.
+Logs are saved to `logs/` folder next to the executable with detailed application activity.
 
 ### Module Testing
 Each module can be tested independently:
@@ -349,7 +349,7 @@ pip3 install -r requirements.txt
 [Settings]
 debug_mode = true
 ```
-Logs are saved to `logs/` folder - send them with support requests.
+Logs are saved to `logs/` folder next to the executable - send them with support requests.
 
 ## 📄 License
 
@@ -438,7 +438,7 @@ Current version is displayed in application title and logs.
 ### Contacting Support
 When creating support requests, please include:
 1. **Diagnostic HTML report**
-2. **Log files** from `logs/` folder
+2. **Log files** from `logs/` folder (next to executable)
 3. **Problem description** and steps to reproduce
 4. **Application version** and operating system
 

@@ -6,6 +6,7 @@
 """
 
 import os
+import sys
 import logging
 import datetime
 from pathlib import Path
@@ -59,17 +60,30 @@ class FileLogger:
             self.setup_complete = False
     
     def _create_logs_directory(self) -> Path:
-        """Создает директорию для логов"""
-        # Определяем путь к папке логов
-        if os.name == 'nt':  # Windows
-            logs_base = Path(os.environ.get('APPDATA', Path.home())) / "PlanfixReminder"
-        else:  # Linux/macOS
-            logs_base = Path.home() / ".local" / "share" / "PlanfixReminder"
-        
-        logs_dir = logs_base / "logs"
-        logs_dir.mkdir(parents=True, exist_ok=True)
-        
-        return logs_dir
+        """Создает директорию для логов рядом с исполняемым файлом"""
+        try:
+            # Определяем путь к исполняемому файлу или скрипту
+            if getattr(sys, 'frozen', False):
+                # Если запущен как exe файл
+                app_dir = Path(sys.executable).parent
+            else:
+                # Если запущен как Python скрипт
+                app_dir = Path(__file__).parent
+
+            # Создаем папку logs рядом с приложением
+            logs_dir = app_dir / "logs"
+            logs_dir.mkdir(parents=True, exist_ok=True)
+
+            return logs_dir
+
+        except Exception as e:
+            # Fallback: если не удалось создать рядом с приложением,
+            # используем временную папку
+            import tempfile
+            logs_dir = Path(tempfile.gettempdir()) / "PlanfixReminder_logs"
+            logs_dir.mkdir(parents=True, exist_ok=True)
+            print(f"⚠️ Используется временная папка для логов: {logs_dir}")
+            return logs_dir
     
     def _setup_main_logger(self):
         """Настраивает основной логгер"""

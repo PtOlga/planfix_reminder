@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справка - Planfix Reminder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.1rem;
+            margin: 12px 0 8px 0;
+        }
+
+        .notification-types {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .notification-card {
+            flex: 1;
+            min-width: 180px;
+            padding: 18px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .notification-card.overdue {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+
+        .notification-card.urgent {
+            background: linear-gradient(135deg, #ff8800, #cc4400);
+        }
+
+        .notification-card.current {
+            background: linear-gradient(135deg, #0066cc, #003388);
+        }
+
+        .notification-card h3 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .notification-card p {
+            margin: 4px 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .control-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            text-align: center;
+        }
+
+        .control-item .button {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: block;
+            margin: 0 auto 6px;
+            width: fit-content;
+        }
+
+        .control-item p {
+            color: #555;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .tray-menu {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .tray-menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tray-menu li {
+            margin: 8px 0;
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tray-menu li:last-child {
+            border-bottom: none;
+        }
+
+        .tray-colors {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .tray-color {
+            flex: 1;
+            min-width: 120px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border-top: 3px solid;
+            font-size: 0.85rem;
+        }
+
+        .tray-color.red { border-top-color: #ff4444; }
+        .tray-color.orange { border-top-color: #ff8800; }
+        .tray-color.green { border-top-color: #00cc66; }
+        .tray-color.gray { border-top-color: #888888; }
+
+        .troubleshooting-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        .troubleshooting-item h4 {
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .troubleshooting-item ul {
+            padding-left: 18px;
+        }
+
+        .troubleshooting-item li {
+            margin: 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #00d2d3;
+        }
+
+        .tip-box h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+        }
+
+        .faq-item h4 {
+            color: #667eea;
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .faq-item p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        ul, ol {
+            padding-left: 18px;
+        }
+
+        li {
+            margin: 4px 0;
+        }
+
+        p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .notification-types {
+                flex-direction: column;
+            }
+            
+            .controls-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tray-colors {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📋 Planfix Reminder</h1>
+            <p class="subtitle">Быстрая справка по использованию</p>
+        </header>
+
+        <main class="main-content">
+            <section class="section">
+                <h2><span class="icon">🎯</span>О программе</h2>
+                <p>Программа автоматически показывает уведомления о ваших задачах из Planfix. Работает в фоне и напоминает о важных делах.</p>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">🔔</span>Типы уведомлений</h2>
+                <div class="notification-types">
+                    <div class="notification-card overdue">
+                        <h3>🔴 ПРОСРОЧЕННЫЕ</h3>
+                        <p>Срок прошел</p>
+                        <p>Громкий сигнал</p>
+                        <p>Каждые 5 мин</p>
+                    </div>
+                    <div class="notification-card urgent">
+                        <h3>🟡 СРОЧНЫЕ</h3>
+                        <p>До срока < 1 дня</p>
+                        <p>Предупреждение</p>
+                        <p>Каждые 15 мин</p>
+                    </div>
+                    <div class="notification-card current">
+                        <h3>📋 ОБЫЧНЫЕ</h3>
+                        <p>Назначенные задачи</p>
+                        <p>Без звука</p>
+                        <p>Каждые 30 мин</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">🎮</span>Кнопки управления</h2>
+                <div class="controls-grid">
+                    <div class="control-item">
+                        <div class="button">Открыть</div>
+                        <p>Перейти к задаче</p>
+                    </div>
+                    <div class="control-item">
+                        <div class="button">15мин</div>
+                        <p>Напомнить позже</p>
+                    </div>
+                    <div class="control-item">
+                        <div class="button">1ч</div>
+                        <p>Напомнить через час</p>
+                    </div>
+                    <div class="control-item">
+                        <div class="button">Готово</div>
+                        <p>Больше не показывать</p>
+                    </div>
+                    <div class="control-item">
+                        <div class="button">✕</div>
+                        <p>Закрыть окно</p>
+                    </div>
+                    <div class="control-item">
+                        <div class="button">📌</div>
+                        <p>Закрепить окно</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <h3>💡 Совет</h3>
+                    <p>Окна уведомлений можно перетаскивать мышью. Используйте "Готово" для выполненных задач.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">📊</span>Системный трей</h2>
+                <p>Программа работает через иконку возле часов. Правый клик открывает меню:</p>
+                <div class="tray-menu">
+                    <ul>
+                        <li><strong>Проверить сейчас</strong> - обновить список задач</li>
+                        <li><strong>Пауза на 1 час / до завтра</strong> - временно отключить</li>
+                        <li><strong>Возобновить</strong> - включить уведомления</li>
+                        <li><strong>Открыть Planfix</strong> - перейти на сайт</li>
+                        <li><strong>Выход</strong> - закрыть программу</li>
+                    </ul>
+                </div>
+
+                <h3>Цвет иконки:</h3>
+                <div class="tray-colors">
+                    <div class="tray-color red">
+                        🔴 Просрочено
+                    </div>
+                    <div class="tray-color orange">
+                        🟠 Срочно
+                    </div>
+                    <div class="tray-color green">
+                        🟢 Всё в порядке
+                    </div>
+                    <div class="tray-color gray">
+                        ⚫ На паузе
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">⚙️</span>Настройка</h2>
+                <p>Для работы с Planfix нужны API ключ и адрес вашей системы. Эти данные настраиваются в файле config.ini рядом с программой.</p>
+                
+                <h3>Параметры времени показа уведомлений:</h3>
+                <div class="tray-menu">
+                    <ul>
+                        <li><strong>check_interval</strong> - как часто проверять задачи (в секундах, по умолчанию 300 = 5 минут)</li>
+                        <li><strong>notify_overdue</strong> - показывать просроченные задачи (true/false)</li>
+                        <li><strong>notify_urgent</strong> - показывать срочные задачи (true/false)</li>
+                        <li><strong>notify_current</strong> - показывать обычные задачи (true/false)</li>
+                        <li><strong>max_total_windows</strong> - максимум окон одновременно (по умолчанию 10)</li>
+                        <li><strong>max_windows_per_category</strong> - максимум окон одного типа (по умолчанию 5)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">🔧</span>Решение проблем</h2>
+                
+                <div class="troubleshooting-item">
+                    <h4>❌ Нет уведомлений</h4>
+                    <ul>
+                        <li>Проверьте иконку в трее - программа запущена?</li>
+                        <li>Попробуйте "Проверить сейчас"</li>
+                        <li>Убедитесь что у вас есть активные задачи</li>
+                    </ul>
+                </div>
+
+                <div class="troubleshooting-item">
+                    <h4>🌐 Ошибка подключения</h4>
+                    <ul>
+                        <li>Проверьте интернет соединение</li>
+                        <li>Запустите самодиагностику из меню трея и отправьте результаты в IT-поддержку</li>
+                        <li>Обратитесь в IT-поддержку</li>
+                    </ul>
+                </div>
+
+                <div class="troubleshooting-item">
+                    <h4>⚠️ Программа не запускается</h4>
+                    <ul>
+                        <li>Проверьте настройки в config.ini</li>
+                        <li>Запустите от имени администратора</li>
+                        <li>Запустите самодиагностику из меню трея и отправьте результаты в IT-поддержку</li>
+                        <li>Обратитесь в IT-поддержку</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2><span class="icon">❓</span>Часто задаваемые вопросы</h2>
+                
+                <div class="faq-item">
+                    <h4>Можно ли изменить время напоминаний?</h4>
+                    <p>Да, в файле config.ini можно настроить интервал проверки задач. По умолчанию проверка происходит каждые 5 минут.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Будет ли программа работать, если я закрою все окна?</h4>
+                    <p>Да, программа продолжит работать в фоне через системный трей, даже если все окна уведомлений закрыты.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Можно ли отключить уведомления для определенного типа задач?</h4>
+                    <p>Да, в config.ini можно отдельно включить/выключить уведомления для текущих, срочных или просроченных задач.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Что делать, если уведомлений слишком много?</h4>
+                    <p>Используйте кнопку "Пауза" в меню трея или нажимайте "Готово" для задач, которые не требуют напоминаний.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

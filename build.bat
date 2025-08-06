@@ -40,7 +40,7 @@ echo.
 
 REM Запускаем сборку
 echo 🔨 Запуск сборки...
-python build_exe.py
+python tools\build_exe.py
 
 if errorlevel 1 (
     echo.

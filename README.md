@@ -32,17 +32,19 @@ planfix_reminder/
 ├── ui_components.py              # Toast уведомления и системный трей
 ├── file_logger.py                # Система логирования
 ├── diagnostic_module.py          # Модуль диагностики системы
-├── debug_utils.py                # Утилиты отладки
 ├── config.ini                    # Конфигурация (не в git!)
 ├── config.ini.example            # Пример конфигурации
 ├── requirements.txt              # Зависимости Python
-├── planfix_reminder.spec         # Конфигурация PyInstaller
-├── build_exe.py                  # Скрипт сборки exe
 ├── build.bat                     # Batch файл для сборки
 ├── BUILD_INSTRUCTIONS.md         # Инструкции по сборке
 ├── DIAGNOSTIC_INTEGRATION.md     # Документация диагностики
 ├── planfix_reminder_help.html    # Справка пользователя
-└── README.md                     # Документация
+├── README.md                     # Документация
+└── tools/                        # Служебные инструменты
+    ├── build_exe.py              # Скрипт сборки exe
+    ├── planfix_reminder.spec     # Конфигурация PyInstaller
+    ├── debug_utils.py            # Утилиты отладки
+    └── test_diagnostic_integration.py # Тесты интеграции
 ```
 
 ## 🚀 Установка и настройка
@@ -207,7 +209,7 @@ python task_tracker.py
 python ui_components.py
 
 # Тест диагностики
-python test_diagnostic_integration.py
+python tools\test_diagnostic_integration.py
 ```
 
 ## � Сборка exe файла
@@ -218,7 +220,7 @@ python test_diagnostic_integration.py
 build.bat
 
 # Или напрямую через Python
-python build_exe.py
+python tools\build_exe.py
 ```
 
 ### Ручная сборка
@@ -227,7 +229,7 @@ python build_exe.py
 pip install pyinstaller
 
 # Сборка через spec файл
-pyinstaller --clean planfix_reminder.spec
+pyinstaller --clean tools\planfix_reminder.spec
 ```
 
 Подробные инструкции см. в [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)
@@ -246,10 +248,11 @@ pyinstaller --clean planfix_reminder.spec
 - **`FileLogger`** - система логирования в файлы
 - **`DiagnosticModule`** - диагностика системы
 
-### Вспомогательные модули
+### Служебные инструменты (папка `tools/`)
 
-- **`debug_utils.py`** - утилиты для отладки
 - **`build_exe.py`** - автоматическая сборка exe
+- **`planfix_reminder.spec`** - конфигурация PyInstaller
+- **`debug_utils.py`** - утилиты для отладки
 - **`test_diagnostic_integration.py`** - тесты интеграции
 
 ### Преимущества модульной архитектуры

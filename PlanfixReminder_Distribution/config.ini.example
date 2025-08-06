@@ -1,0 +1,36 @@
+[Planfix]
+# Ваш API токен из настроек Planfix
+# ВНИМАНИЕ: Не коммитьте реальный токен в git!
+api_token = ВАШ_API_ТОКЕН_ЗДЕСЬ
+
+# URL вашего аккаунта (обязательно с /rest на конце!)
+account_url = https://ваш-аккаунт.planfix.com/rest
+
+# ID готового фильтра (если есть)
+filter_id = 
+
+# ID пользователя (если нет фильтра)
+user_id = 1
+
+[Settings]
+# Интервал проверки в секундах (300 = 5 минут)
+check_interval = 300
+
+# Включить уведомления для разных типов задач
+notify_current = true
+notify_urgent = true
+notify_overdue = true
+
+# Лимиты окон уведомлений
+max_windows_per_category = 5
+max_total_windows = 10
+
+[Roles]
+# Показывать задачи где я исполнитель
+include_assignee = true
+
+# Показывать задачи где я постановщик
+include_assigner = true
+
+# Показывать задачи где я контролер/участник
+include_auditor = true

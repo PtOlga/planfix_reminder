@@ -75,11 +75,30 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Logs
+# Logs and debugging
 *.log
 logs/
+*.log.*
+debug_*.txt
+error_*.txt
+trace_*.txt
 
 # Application specific
 *.db
 *.sqlite
-*.sqlite3"config.ini" 
+*.sqlite3
+config.ini
+
+# Temporary files and reports
+diagnostic_report_*.html
+temp_*.html
+crash_*.txt
+backup_*.ini
+
+# Build artifacts and distribution
+PlanfixReminder_Distribution/
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm

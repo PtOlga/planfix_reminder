@@ -195,6 +195,7 @@ debug_mode = true
 ```
 
 Logs are saved to `logs/` folder next to the executable with detailed application activity.
+> **Note:** The `logs/` folder is excluded from git tracking via `.gitignore`.
 
 ### Module Testing
 Each module can be tested independently:
